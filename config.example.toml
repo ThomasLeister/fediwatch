@@ -1,0 +1,7 @@
+httpPort              = 8010
+websocketPort         = 8011
+redisHost             = "localhost"
+redisPort             = 6379
+databasePath          = "GeoLite2-City.mmdb"
+homeLocation          = [50.1517, 8.7523]
+websocketUrl          = "wss://watch.server.tld/ws"

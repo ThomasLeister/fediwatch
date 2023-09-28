@@ -1,0 +1,16 @@
+syntax = "proto3";
+package fediwatch;
+
+option go_package = "./fediwatchProto";
+
+message Connection {
+    enum Direction {
+        UNKNOWN = 0;
+        IN = 1;
+        OUT = 2;
+    }
+
+    Direction dir = 1;
+    float lat = 2;
+    float lng = 3;
+}

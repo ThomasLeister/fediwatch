@@ -1,0 +1,42 @@
+diff --git a/app/workers/activitypub/delivery_worker.rb b/app/workers/activitypub/delivery_worker.rb
+index 7c1c14766..51c4ac1d1 100644
+--- a/app/workers/activitypub/delivery_worker.rb
++++ b/app/workers/activitypub/delivery_worker.rb
+@@ -4,6 +4,7 @@ class ActivityPub::DeliveryWorker
+   include Sidekiq::Worker
+   include RoutingHelper
+   include JsonLdHelper
++  include Redisable
+ 
+   STOPLIGHT_FAILURE_THRESHOLD = 10
+   STOPLIGHT_COOLDOWN = 60
+@@ -32,6 +33,8 @@ class ActivityPub::DeliveryWorker
+     @host           = Addressable::URI.parse(inbox_url).normalized_site
+     @performed      = false
+ 
++    redis.publish('activitypub-outbound-hosts', Addressable::URI.parse(inbox_url).host)
++
+     perform_request
+   ensure
+     if @inbox_url.present?
+diff --git a/app/workers/activitypub/processing_worker.rb b/app/workers/activitypub/processing_worker.rb
+index 1bb94b7f2..735154be8 100644
+--- a/app/workers/activitypub/processing_worker.rb
++++ b/app/workers/activitypub/processing_worker.rb
+@@ -2,6 +2,7 @@
+ 
+ class ActivityPub::ProcessingWorker
+   include Sidekiq::Worker
++  include Redisable
+ 
+   sidekiq_options queue: 'ingress', backtrace: true, retry: 8
+ 
+@@ -13,6 +14,8 @@ class ActivityPub::ProcessingWorker
+ 
+     return if actor.nil?
+ 
++    redis.publish('activitypub-inbound-hosts', actor.domain)
++
+     ActivityPub::ProcessCollectionService.new.call(body, actor, override_timestamps: true, delivered_to_account_id: delivered_to_account_id, delivery: true)
+   rescue ActiveRecord::RecordInvalid => e
+     Rails.logger.debug { "Error processing incoming ActivityPub object: #{e}" }

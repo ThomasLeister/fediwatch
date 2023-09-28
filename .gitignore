@@ -19,3 +19,13 @@
 
 # Go workspace file
 go.work
+
+# VSCode
+.vscode
+
+# GeoIP2 DB
+GeoLite2-City.mmdb
+
+fediwatch
+main
+config.toml
